@@ -1,5 +1,5 @@
 {
-    "name": "altolabs/snappic-magento2",
+    "name": "altolabs/snappic-magento-2",
     "description": "Snappic connector for Magento 2",
     "require": {
         "php": "~5.5.0|~5.6.0|~7.0.0",
