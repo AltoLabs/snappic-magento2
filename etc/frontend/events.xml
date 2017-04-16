@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="checkout_cart_add_product_complete">
+        <observer name="altolabs_snappic_observer_frontend_afterproductaddtocart"
+            instance="AltoLabs\Snappic\Observer\Frontend\AfterProductAddToCart" />
+    </event>
+
+    <!-- Might be able to use https://github.com/magento/magento2/blob/2.0.13/lib/internal/Magento/Framework/App/Action/Action.php#L92 here instead -->
+    <event name="controller_action_predispatch">
+        <observer name="altolabs_snappic_observer_frontend_controlleractionpredispatch"
+            instance="AltoLabs\Snappic\Observer\Frontend\ControllerActionPredispatch" />
+    </event>
+</config>
