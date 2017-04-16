@@ -15,9 +15,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     protected $scopeConfig;
 
     /**
-     * @var \Magento\Framework\App\Config\ConfigResource\ConfigInterface
+     * @var \Magento\Framework\App\Config\Storage\WriterInterface
      */
-    protected $configResource;
+    protected $writerInterface;
 
     /**
      * @var \Magento\Framework\Oauth\Helper\Oauth
@@ -40,6 +40,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     protected $productRepository;
 
     /**
+     * @var \Magento\Framework\Logger\Monolog
+     */
+    protected $logger;
+
+    /**
      * Default API values and system configuration paths
      *
      * @var string
@@ -50,25 +55,37 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const SNAPPIC_ADMIN_URL_DEFAULT = 'https://www.snappic.io';
 
     /**
-     * @param \Magento\Framework\App\Helper\Context          $context
-     * @param \Magento\Framework\App\DeploymentConfig\Reader $configReader
+     * @param \Magento\Framework\App\Helper\Context                 $context
+     * @param \Magento\Framework\App\DeploymentConfig\Reader        $configReader
+     * @param \Magento\Framework\App\Config\ScopeConfigInterface    $scopeConfig
+     * @param \Magento\Framework\App\Config\Storage\WriterInterface $writerInterface
+     * @param \Magento\Framework\Oauth\Helper\Oauth                 $oauthHelper
+     * @param \Magento\Customer\Model\Session                       $sessionManager
+     * @param \Magento\Store\Model\StoreManagerInterface            $storeManager
+     * @param \Magento\Catalog\Model\ProductRepository              $productRepository
+     * @param \Magento\Framework\Logger\Monolog                     $logger
+     * @param \AltoLabs\Snappic\Model\Logger                        $logHandler
      */
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
         \Magento\Framework\App\DeploymentConfig\Reader $configReader,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Framework\App\Config\ConfigResource\ConfigInterface $configResource,
+        \Magento\Framework\App\Config\Storage\WriterInterface $writerInterface,
         \Magento\Framework\Oauth\Helper\Oauth $oauthHelper,
         \Magento\Customer\Model\Session $sessionManager,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Catalog\Model\ProductRepository $productRepository
+        \Magento\Catalog\Model\ProductRepository $productRepository,
+        \Magento\Framework\Logger\Monolog $logger,
+        \AltoLabs\Snappic\Model\Logger $logHandler
     ) {
         $this->configReader = $configReader;
         $this->scopeConfig = $scopeConfig;
-        $this->configResource = $configResource;
+        $this->writerInterface = $writerInterface;
         $this->oauthHelper = $oauthHelper;
         $this->sessionManager = $sessionManager;
         $this->productRepository = $productRepository;
+        $this->logger = $logger;
+        $this->logger->pushHandler($logHandler);
 
         parent::__construct($context);
     }
@@ -103,6 +120,18 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function getSnappicAdminUrl()
     {
         return $this->getEnvOrDefault('SNAPPIC_ADMIN_URL', self::SNAPPIC_ADMIN_URL_DEFAULT);
+    }
+
+    /**
+     * Write something to the Snappic log file
+     *
+     * @param string $message
+     * @return $this
+     */
+    public function log($message = '')
+    {
+        $this->logger->addDebug($message);
+        return $this;
     }
 
     /**
@@ -170,8 +199,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
         $token = $this->oauthHelper->generateToken();
         $secret = $this->oauthHelper->generateTokenSecret();
-        $this->configResource->saveConfig($this->getConfigPath('security/token'), $token, 'default', 0);
-        $this->configResource->saveConfig($this->getConfigPath('security/secret'), $secret, 'default', 0);
+        $this->writerInterface->save($this->getConfigPath('security/token'), $token);
+        $this->writerInterface->save($this->getConfigPath('security/secret'), $secret);
         // Mage::app()->getConfig()->reinit();
 
         $data = [
