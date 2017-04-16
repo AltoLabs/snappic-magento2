@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="controller_action_predispatch">
+        <observer name="altolabs_snappic_observer_backend_adminpagedisplayed"
+            instance="AltoLabs\Snappic\Observer\Backend\AdminPageDisplayed" />
+    </event>
+
+    <event name="controller_action_catalog_product_save_entity_after">
+        <observer name="altolabs_snappic_observer_backend_productaftersave"
+            instance="AltoLabs\Snappic\Observer\Backend\ProductAfterSave" />
+    </event>
+
+    <!-- Need to check this event name
+    <event name="catalog_product_attribute_update_after">
+        <observer name="altolabs_snappic_observer_backend_productaftersave"
+            instance="AltoLabs\Snappic\Observer\Backend\ProductAfterSave" />
+    </event>
+    -->
+
+    <event name="catalog_product_delete_before">
+        <observer name="altolabs_snappic_observer_backend_productbeforedelete"
+            instance="AltoLabs\Snappic\Observer\Backend\ProductBeforeDelete" />
+    </event>
+</config>
