@@ -4,8 +4,40 @@ namespace AltoLabs\Snappic\Helper;
 
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
+    /**
+     * @var \Magento\Framework\App\DeploymentConfig\Reader
+     */
     protected $configReader;
-    protected $a;
+
+    /**
+     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     */
+    protected $scopeConfig;
+
+    /**
+     * @var \Magento\Framework\App\Config\ConfigResource\ConfigInterface
+     */
+    protected $configResource;
+
+    /**
+     * @var \Magento\Framework\Oauth\Helper\Oauth
+     */
+    protected $oauthHelper;
+
+    /**
+     * @var \Magento\Framework\Session\SessionManager
+     */
+    protected $sessionManager;
+
+    /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    protected $storeManager;
+
+    /**
+     * @var \Magento\Catalog\Model\ProductRepository
+     */
+    protected $productRepository;
 
     /**
      * Default API values and system configuration paths
@@ -23,9 +55,21 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
-        \Magento\Framework\App\DeploymentConfig\Reader $configReader
+        \Magento\Framework\App\DeploymentConfig\Reader $configReader,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        \Magento\Framework\App\Config\ConfigResource\ConfigInterface $configResource,
+        \Magento\Framework\Oauth\Helper\Oauth $oauthHelper,
+        \Magento\Customer\Model\Session $sessionManager,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Magento\Catalog\Model\ProductRepository $productRepository
     ) {
         $this->configReader = $configReader;
+        $this->scopeConfig = $scopeConfig;
+        $this->configResource = $configResource;
+        $this->oauthHelper = $oauthHelper;
+        $this->sessionManager = $sessionManager;
+        $this->productRepository = $productRepository;
+
         parent::__construct($context);
     }
 
@@ -82,7 +126,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function getAdminHtmlPath()
     {
         $config = $this->configReader->load();
-        var_dump($config);
         $path = 'admin';
         if (!empty($config['backend']['frontName'])) {
             $path = $config['backend']['frontName'];
@@ -90,11 +133,21 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return (string) $path;
     }
 
+    /**
+     * Returns the Snappic token
+     *
+     * @return string
+     */
     public function getToken()
     {
         return $this->generateTokenAndSecret('token');
     }
 
+    /**
+     * Returns the Snappic secret token
+     *
+     * @return string
+     */
     public function getSecret()
     {
         return $this->generateTokenAndSecret('secret');
@@ -106,17 +159,27 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     protected function generateTokenAndSecret($what)
     {
-        // $ret = Mage::getStoreConfig($this->getConfigPath('security/'.$what));
-        // if (!empty($ret)) {
-        //     return $ret;
-        // }
-        // $token = Mage::helper('oauth')->generateToken();
-        // $secret = Mage::helper('oauth')->generateTokenSecret();
-        // Mage::app()->getConfig()->saveConfig($this->getConfigPath('security/token'), $token);
-        // Mage::app()->getConfig()->saveConfig($this->getConfigPath('security/secret'), $secret);
+        $ret = $this->scopeConfig->getValue(
+            $this->getConfigPath('security/' . $what),
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+
+        if (!empty($ret)) {
+            return $ret;
+        }
+
+        $token = $this->oauthHelper->generateToken();
+        $secret = $this->oauthHelper->generateTokenSecret();
+        $this->configResource->saveConfig($this->getConfigPath('security/token'), $token, 'default', 0);
+        $this->configResource->saveConfig($this->getConfigPath('security/secret'), $secret, 'default', 0);
         // Mage::app()->getConfig()->reinit();
-        // $data = array('token' => $token, 'secret' => $secret);
-        // return $data[$what];
+
+        $data = [
+            'token' => $token,
+            'secret' => $secret
+        ];
+
+        return $data[$what];
     }
 
     /**
@@ -125,160 +188,219 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      * @param  Product $product
      * @return int Stock level
      */
-    public function getProductStock($product)
+    public function getProductStock(\Magento\Catalog\Model\Product $product)
     {
         // Product is simple...
-        // if (!$product->isConfigurable()) {
-        //     $productId = $product->getId();
-        //     // If *any* of the parent isn't in stock, we consider this product isn't.
-        //     $parentIds = Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($productId);
-        //     if (count($parentIds) != 0) {
-        //         foreach ($parentIds as $parentId) {
-        //             $parent = Mage::getModel('catalog/product')->load($parentId);
-        //             try {
-        //                 $stockItem = $this->getProductStockItem($parent);
-        //                 if ($stockItem->getManageStock() && !$stockItem->getIsInStock()) {
-        //                     return 0;
-        //                 }
-        //             } catch (Exception $e) {
-        //                 continue;
-        //             }
-        //         }
-        //     }
-        // }
-        // try {
-        //     $stockItem = $this->getProductStockItem($product);
-        //     if ($stockItem->getManageStock()) {
-        //         if ($stockItem->getIsInStock()) {
-        //             return (int)$stockItem->getQty();
-        //         } else {
-        //             return 0;
-        //         }
-        //     } else {
-        //         return 99;
-        //     }
-        // } catch (Exception $e) {
-        //     return 99;
-        // }
+        if (!$this->isConfigurable()) {
+            $productId = $product->getId();
+            // If *any* of the parent isn't in stock, we consider this product isn't.
+            $parentIds = $product->getTypeInstance()->getParentIdsByChild($productId);
+            if (count($parentIds) != 0) {
+                foreach ($parentIds as $parentId) {
+                    $parent = $this->productRepository->getById($parentId);
+                    try {
+                        $stockItem = $this->getProductStockItem($parent);
+                        if ($stockItem->getManageStock() && !$stockItem->getIsInStock()) {
+                            return 0;
+                        }
+                    } catch (Exception $e) {
+                        continue;
+                    }
+                }
+            }
+        }
+
+        try {
+            $stockItem = $this->getProductStockItem($product);
+            if ($stockItem->getManageStock()) {
+                if ($stockItem->getIsInStock()) {
+                    return (int)$stockItem->getQty();
+                } else {
+                    return 0;
+                }
+            } else {
+                return 99;
+            }
+        } catch (Exception $e) {
+            return 99;
+        }
     }
 
-    protected function getProductStockItem($product)
+    /**
+     * Check whether a product is a configurable product or not
+     *
+     * @param \Magento\Catalog\Model\Product $product
+     * @return bool
+     */
+    public function isConfigurable(\Magento\Catalog\Model\Product $product)
     {
-        // return Mage::getModel('cataloginventory/stock_item')->loadByProduct($product);
+        return $product->getTypeId() === \Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE;
     }
 
-    public function getSendableOrderData($order)
+    /**
+     * Get the product's stock item model
+     *
+     * @param \Magento\Catalog\Model\Product $product
+     * @return \Magento\CatalogInventory\Api\Data\StockItemInterface|null
+     */
+    protected function getProductStockItem(\Magento\Catalog\Model\Product $product)
     {
-        // $session = Mage::getSingleton('core/session');
-        // return array(
-        //     'id'                      => $order->getId(),
-        //     'number'                  => $order->getId(),
-        //     'order_number'            => $order->getId(),
-        //     'email'                   => $order->getCustomerEmail(),
-        //     'contact_email'           => $order->getCustomerEmail(),
-        //     'total_price'             => $order->getTotalDue(),
-        //     'total_price_usd'         => $order->getTotalDue(),
-        //     'total_tax'               => '0.00',
-        //     'taxes_included'          => true,
-        //     'subtotal_price'          => $order->getTotalDue(),
-        //     'total_line_items_price'  => $order->getTotalDue(),
-        //     'total_discounts'         => '0.00',
-        //     'currency'                => $order->getBaseCurrencyCode(),
-        //     'financial_status'        => 'paid',
-        //     'confirmed'               => true,
-        //     'landing_site'            => $session->getLandingPage(),
-        //     'referring_site'          => $session->getLandingPage(),
-        //     'billing_address'         => array(
-        //         'first_name'              => $order->getCustomerFirstname(),
-        //         'last_name'               => $order->getCustomerLastname(),
-        //     )
-        // );
+        return $product->getExtensionAttributes()->getStockItem();
     }
 
-    public function getSendableProductData($product)
+    /**
+     * Return a data payload from a given order
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @return array
+     */
+    public function getSendableOrderData(\Magento\Sales\Model\Order $order)
     {
-        // return array(
-        //     'id'                  => $product->getId(),
-        //     'title'               => $product->getName(),
-        //     'body_html'           => $product->getDescription(),
-        //     'sku'                 => $product->getSku(),
-        //     'price'               => $product->getPrice(),
-        //     'inventory_quantity'  => $this->getProductStock($product),
-        //     'handle'              => $product->getUrlKey(),
-        //     'variants'            => $this->getSendableVariantsData($product),
-        //     'images'              => $this->getSendableImagesData($product),
-        //     'options'             => $this->getSendableOptionsData($product),
-        //     'updated_at'          => $product->getUpdatedAt(),
-        //     'published_at'        => $product->getUpdatedAt()
-        // );
+        return [
+            'id'                      => $order->getId(),
+            'number'                  => $order->getId(),
+            'order_number'            => $order->getId(),
+            'email'                   => $order->getCustomerEmail(),
+            'contact_email'           => $order->getCustomerEmail(),
+            'total_price'             => $order->getTotalDue(),
+            'total_price_usd'         => $order->getTotalDue(),
+            'total_tax'               => '0.00',
+            'taxes_included'          => true,
+            'subtotal_price'          => $order->getTotalDue(),
+            'total_line_items_price'  => $order->getTotalDue(),
+            'total_discounts'         => '0.00',
+            'currency'                => $order->getBaseCurrencyCode(),
+            'financial_status'        => 'paid',
+            'confirmed'               => true,
+            'landing_site'            => $this->sessionManager->getLandingPage(),
+            'referring_site'          => $this->sessionManager->getLandingPage(),
+            'billing_address'         => [
+                'first_name' => $order->getCustomerFirstname(),
+                'last_name'  => $order->getCustomerLastname(),
+            ]
+        ];
     }
 
-    public function getSendableVariantsData($product)
+    /**
+     * Get product data to be sent to Snappic
+     *
+     * @param \Magento\Catalog\Model\Product $produt
+     * @return array
+     */
+    public function getSendableProductData(\Magento\Catalog\Model\Product $product)
     {
-        // if (!$product->isConfigurable()) {
-        //     return array();
-        // }
-        // $sendable = array();
-        // $subProducts = Mage::getModel('catalog/product_type_configurable')->getUsedProducts(null, $product);
-        // foreach ($subProducts as $subProduct) {
-        //     // Assign store and load sub product.
-        //     $subProduct->setStoreId($product->getStoreId())
-        //          ->load($subProduct->getId());
-        //     // Variant is disabled, consider that it's deleted and just don't add it.
-        //     if ((int)$subProduct->getStatus() != Mage_Catalog_Model_Product_Status::STATUS_ENABLED) {
-        //         continue;
-        //     }
-        //     // Add variant data to array.
-        //     $sendable[] = array(
-        //         'id'                  => $subProduct->getId(),
-        //         'title'               => $subProduct->getName(),
-        //         'sku'                 => $subProduct->getSku(),
-        //         'price'               => $subProduct->getPrice(),
-        //         'inventory_quantity'  => $this->getProductStock($subProduct),
-        //         'updated_at'          => $subProduct->getUpdatedAt()
-        //     );
-        // }
-        // return $sendable;
+        return [
+            'id'                  => $product->getId(),
+            'title'               => $product->getName(),
+            'body_html'           => $product->getDescription(),
+            'sku'                 => $product->getSku(),
+            'price'               => $product->getPrice(),
+            'inventory_quantity'  => $this->getProductStock($product),
+            'handle'              => $product->getUrlKey(),
+            'variants'            => $this->getSendableVariantsData($product),
+            'images'              => $this->getSendableImagesData($product),
+            'options'             => $this->getSendableOptionsData($product),
+            'updated_at'          => $product->getUpdatedAt(),
+            'published_at'        => $product->getUpdatedAt()
+        ];
     }
 
-    public function getSendableImagesData($product)
+    /**
+     * Return data for the simple products under a given configurable product (variants)
+     *
+     * @param \Magento\Catalog\Model\Product $product
+     * @return array
+     */
+    public function getSendableVariantsData(\Magento\Catalog\Model\Product $product)
     {
-        // $images = $product->getMediaGalleryImages();
-        // $imagesData = array();
-        // foreach ($images as $image) {
-        //     $imagesData[] = array(
-        //         'id'          => $image->getId(),
-        //         'src'         => $image->getUrl(),
-        //         'position'    => $image->getPosition(),
-        //         'updated_at'  => $product->getUpdatedAt()
-        //     );
-        // }
-        // return $imagesData;
+        if (!$this->isConfigurable($product)) {
+            return [];
+        }
+
+        $sendable = [];
+        $subProducts = $product->getTypeInstance()->getUsedProducts($product);
+        foreach ($subProducts as $subProduct) {
+            // Assign store and load sub product.
+            $subProduct->setStoreId($product->getStoreId())->load($subProduct->getId());
+
+            // Variant is disabled, consider that it's deleted and just don't add it.
+            if ((int) $subProduct->getStatus() != \Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED) {
+                continue;
+            }
+
+            // Add variant data to array.
+            $sendable[] = [
+                'id'                  => $subProduct->getId(),
+                'title'               => $subProduct->getName(),
+                'sku'                 => $subProduct->getSku(),
+                'price'               => $subProduct->getPrice(),
+                'inventory_quantity'  => $this->getProductStock($subProduct),
+                'updated_at'          => $subProduct->getUpdatedAt()
+            ];
+        }
+
+        return $sendable;
     }
 
-    public function getSendableOptionsData($product)
+    /**
+     * Get a list of a product's images
+     *
+     * @param \Magento\Catalog\Model\Product $product
+     * @return array
+     */
+    public function getSendableImagesData(\Magento\Catalog\Model\Product $product)
     {
-        // $options = $product->getProductOptionsCollection();
-        // $sendable = array();
-        // foreach ($options as $option) {
-        //     $optionValues = array();
-        //     foreach ($option->getValuesCollection() as $optionValue) {
-        //         $optionValues[] = (string) $optionValue->getTitle();
-        //     }
-        //     $sendable[] = array(
-        //         'id'        => $option->getId(),
-        //         'name'      => $option->getTitle(),
-        //         'position'  => $option->getSortOrder(),
-        //         'values'    => $optionValues,
-        //     );
-        // }
-        // return $sendable;
+        $images = $product->getMediaGalleryImages();
+        $imagesData = [];
+        foreach ($images as $image) {
+            $imagesData[] = [
+                'id'         => $image->getId(),
+                'src'        => $image->getUrl(),
+                'position'   => $image->getPosition(),
+                'updated_at' => $product->getUpdatedAt()
+            ];
+        }
+        return $imagesData;
     }
 
+    /**
+     * Get a list of a product's product options
+     *
+     * @param \Magento\Catalog\Model\Product $product
+     * @return array
+     */
+    public function getSendableOptionsData(\Magento\Catalog\Model\Product $product)
+    {
+        /** @var \Magento\Catalog\Model\ResourceModel\Product\Option\Collection $options */
+        $options = $product->getProductOptionsCollection();
+        $sendable = [];
+
+        foreach ($options as $option) {
+            $optionValues = [];
+            foreach ($option->getValuesCollection() as $optionValue) {
+                $optionValues[] = (string) $optionValue->getTitle();
+            }
+
+            $sendable[] = [
+                'id'       => $option->getId(),
+                'name'     => $option->getTitle(),
+                'position' => $option->getSortOrder(),
+                'values'   => $optionValues
+            ];
+        }
+
+        return $sendable;
+    }
+
+    /**
+     * Get the domain from the current store's URL
+     *
+     * @return string
+     */
     public function getDomain()
     {
-        // $url = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_LINK);
-        // $components = parse_url($url);
-        // return $components['host'];
+        $url = $this->storeManager->getStore()->getBaseUrl();
+        $components = parse_url($url);
+        return $components['host'];
     }
 }
