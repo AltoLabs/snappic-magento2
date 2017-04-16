@@ -67,7 +67,7 @@ class Connect extends \Magento\Framework\Model\AbstractModel
         $this->dataHelper->log('Snappic: notifySnappicApi ' . $this->dataHelper->getApiHost() . '/magento/webhooks');
 
         $client = new \Magento\Framework\HTTP\ZendClient($this->dataHelper->getApiHost() . '/magento/webhooks');
-        $client->setMethod(Zend_Http_Client::POST);
+        $client->setMethod(\Zend_Http_Client::POST);
         $sendable = $this->seal($this->getSendable());
         $client->setRawData($sendable);
         $headers = [
@@ -105,7 +105,7 @@ class Connect extends \Magento\Framework\Model\AbstractModel
         $client = new \Magento\Framework\HTTP\ZendClient(
             $this->dataHelper->getApiHost() . '/stores/current?domain=' . $domain
         );
-        $client->setMethod(Zend_Http_Client::GET);
+        $client->setMethod(\Zend_Http_Client::GET);
 
         try {
             $body = $client->request()->getBody();
