@@ -25,14 +25,19 @@ class DataTest extends \PHPUnit_Framework_TestCase
     protected $oauthHelper;
 
     /**
-     * @var \Magento\Config\Model\ResourceModel\Config
+     * @var \Magento\Framework\App\Config\Storage\WriterInterface
      */
-    protected $configResource;
+    protected $writerInterface;
 
     /**
      * @var \Magento\Customer\Model\Session
      */
     protected $sessionManager;
+
+    /**
+     * @var \Magento\Framework\Logger\Monolog
+     */
+    protected $logger;
 
     protected function setUp()
     {
@@ -42,7 +47,7 @@ class DataTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->configResource = $this->getMockBuilder('Magento\Config\Model\ResourceModel\Config')
+        $this->writerInterface = $this->getMockBuilder('Magento\Framework\App\Config\Storage\WriterInterface')
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -51,10 +56,15 @@ class DataTest extends \PHPUnit_Framework_TestCase
             ->setMethods(['getLandingPage'])
             ->getMock();
 
+        $this->logger = $this->getMockBuilder('Magento\Framework\Logger\Monolog')
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->helper = $this->objectManager->getObject(Data::class, [
-            'configResource' => $this->configResource,
+            'writerInterface' => $this->writerInterface,
             'oauthHelper' => $this->oauthHelper,
-            'sessionManager' => $this->sessionManager
+            'sessionManager' => $this->sessionManager,
+            'logger' => $this->logger
         ]);
     }
 
@@ -81,7 +91,7 @@ class DataTest extends \PHPUnit_Framework_TestCase
     {
         $this->oauthHelper->expects($this->exactly(2))->method('generateToken')->willReturn('footoken');
         $this->oauthHelper->expects($this->exactly(2))->method('generateTokenSecret')->willReturn('foosecret');
-        $this->configResource->expects($this->exactly(4))->method('saveConfig');
+        $this->writerInterface->expects($this->exactly(4))->method('save');
 
         $this->assertSame('footoken', $this->helper->getToken());
         $this->assertSame('foosecret', $this->helper->getSecret());
@@ -131,5 +141,15 @@ class DataTest extends \PHPUnit_Framework_TestCase
 
         $result = $this->helper->getSendableOrderData($order);
         $this->assertSame($expected, $result);
+    }
+
+    /**
+     * Ensure that the log method calls the logger
+     */
+    public function testLog()
+    {
+        $this->logger->expects($this->once())->method('addDebug');
+
+        $this->helper->log('Test');
     }
 }
