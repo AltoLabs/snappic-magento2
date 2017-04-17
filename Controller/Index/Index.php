@@ -6,12 +6,7 @@ class Index extends \Magento\Framework\App\Action\Action
 {
     public function execute()
     {
-        die('TBC');
-        // $this->loadLayout();
-        // $block = $this->getLayout()->createBlock('core/text');
-        // $block->setText($this->indexPageHtml());
-        // $this->getLayout()->getBlock('content')->append($block);
-        // $this->renderLayout();
+        $this->getResponse()->setBody($this->indexPageHtml());
     }
 
     /**

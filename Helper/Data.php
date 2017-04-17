@@ -116,6 +116,16 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
+     * Gets the currently active Magento store model
+     *
+     * @return \Magento\Store\Api\Data\StoreInterface
+     */
+    public function getCurrentStore()
+    {
+        return $this->storeManager->getStore();
+    }
+
+    /**
      * Write something to the Snappic log file
      *
      * @param string $message
@@ -421,7 +431,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getDomain()
     {
-        $url = $this->storeManager->getStore()->getBaseUrl();
+        $url = $this->getCurrentStore()->getBaseUrl();
         $components = parse_url($url);
         return $components['host'];
     }
