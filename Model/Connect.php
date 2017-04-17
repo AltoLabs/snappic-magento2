@@ -49,7 +49,6 @@ class Connect extends \Magento\Framework\Model\AbstractModel
     ) {
         $this->dataHelper = $dataHelper;
         $this->jsonHelper = $jsonHelper;
-        $this->clientFactory = $clientFactory;
         $this->scopeConfig = $scopeConfig;
         $this->writerInterface = $writerInterface;
 
