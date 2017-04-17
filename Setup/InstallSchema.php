@@ -5,25 +5,17 @@ namespace AltoLabs\Snappic\Setup;
 class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
 {
     /**
-     * @var \AltoLabs\Snappic\Helper\Data
+     * @var \Magento\Framework\ObjectManagerInterface
      */
-    protected $helper;
+    protected $objectManager;
 
     /**
-     * @var \AltoLabs\Snappic\Model\Connect
-     */
-    protected $connect;
-
-    /**
-     * @param \AltoLabs\Snappic\Helper\Data $helper
-     * @param \AltoLabs\Snappic\Model\Connect $connect
+     * @param \Magento\Framework\ObjectManagerInterface $objectManager
      */
     public function __construct(
-        \AltoLabs\Snappic\Helper\Data $helper,
-        \AltoLabs\Snappic\Model\Connect $connect
+        \Magento\Framework\ObjectManagerInterface $objectManager
     ) {
-        $this->helper = $helper;
-        $this->connect = $connect;
+        $this->objectManager = $objectManager;
     }
 
     /**
@@ -36,10 +28,15 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
     ) {
         $setup->startSetup();
 
-        $this->connect
+        $this->objectManager->get('Magento\Framework\App\State')->setAreaCode('adminhtml');
+
+        $helper = $this->objectManager->get('AltoLabs\Snappic\Helper\Data');
+
+        $this->objectManager
+            ->get('AltoLabs\Snappic\Model\Connect')
             ->setSendable([
-                'token' => $this->helper->getToken(),
-                'secret' => $this->helper->getSecret()
+                'token' => $helper->getToken(),
+                'secret' => $helper->getSecret()
             ])
             ->notifySnappicApi('application/installed');
 

@@ -75,6 +75,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->writerInterface = $writerInterface;
         $this->oauthHelper = $oauthHelper;
         $this->sessionManager = $sessionManager;
+        $this->storeManager = $storeManager;
         $this->productRepository = $productRepository;
         $this->logger = $logger;
         $this->logger->pushHandler($logHandler);
