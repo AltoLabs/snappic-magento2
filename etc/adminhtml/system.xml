@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="altolabs" translate="label" sortOrder="1000">
+            <label>AltoLabs</label>
+        </tab>
+        <section id="altolabs_config" translate="label" sortOrder="110" showInDefault="1" showInWebsite="0" showInStore="0">
+            <label>Snappic</label>
+            <tab>altolabs</tab>
+            <resource>AltoLabs_Snappic::config_altolabs</resource>
+            <group id="facebook" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Facebook Configuration</label>
+                <field id="pixel_id" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Facebook Pixel ID</label>
+                </field>
+            </group>
+            <group id="security" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Security</label>
+                <field id="token" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Token</label>
+                </field>
+                <field id="secret" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Secret</label>
+                </field>
+            </group>
+            <!-- <group id="misc" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Miscellaneous</label>
+                <field id="reset" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Reset (Type YES)</label>
+                </field>
+            </group> -->
+        </section>
+    </system>
+</config>
