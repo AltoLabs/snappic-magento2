@@ -49,7 +49,7 @@ class Index extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
-        $payload = $this->jsonHelper->jsonDecode($this->_request()->getRawBody());
+        $payload = $this->jsonHelper->jsonDecode($this->getRequest()->getRawBody());
         $ids = $payload['ids'];
         $quantities = [];
         foreach ($ids as $id) {
