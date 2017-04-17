@@ -49,6 +49,7 @@ class Snappic extends \Magento\Framework\View\Element\Template
         $this->helper = $helper;
         $this->checkoutSession = $checkoutSession;
         $this->storeManager = $storeManager;
+        $this->registry = $registry;
 
         parent::__construct($context, $data);
     }
@@ -66,7 +67,7 @@ class Snappic extends \Magento\Framework\View\Element\Template
 
         /** @var \Magento\Sales\Model\Order|null $order */
         $order = $this->getLastOrder();
-        if (!$order->getIncrementId()) {
+        if (!$order || !$order->getIncrementId()) {
             return false;
         }
 
