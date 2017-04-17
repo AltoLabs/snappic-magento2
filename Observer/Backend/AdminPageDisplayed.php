@@ -11,6 +11,7 @@ class AdminPageDisplayed implements ObserverInterface
      */
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
+        die('yes!');
 //         if (!Mage::getSingleton('admin/session')->isLoggedIn()) {
 //             return;
 //         }

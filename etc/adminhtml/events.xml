@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
-    <event name="controller_action_predispatch">
+    <!-- <event name="controller_action_predispatch"> -->
+    <event name="backend_auth_user_login_success">
         <observer name="altolabs_snappic_observer_backend_adminpagedisplayed"
             instance="AltoLabs\Snappic\Observer\Backend\AdminPageDisplayed" />
     </event>
