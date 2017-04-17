@@ -1,6 +1,6 @@
 <?php
 
-namespace AltoLabs\Snappic\Controller\Index;
+namespace AltoLabs\Snappic\Controller\Inventory;
 
 class Index extends \Magento\Framework\App\Action\Action
 {
