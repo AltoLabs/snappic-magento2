@@ -74,12 +74,27 @@ class Add extends \Magento\Framework\App\Action\Action
         $cart = $this->cart;
         $storeId = $this->snappicHelper->getCurrentStore()->getId();
 
-        $payload = $this->jsonHelper->jsonDecode($this->getRequest()->getRawBody());
+        try {
+            $payload = $this->jsonHelper->jsonDecode($this->getRequest()->getContent());
+        } catch (\Zend_Json_Exception $e) {
+            return $this->jsonFactory->create([
+                'error' => 'The request was not valid JSON: ' . $e->getMessage(),
+                'total' => ($cart->getQuote()->getSubtotal() ?: '0.00')
+            ]);
+        }
+
+        if (empty($payload['id'])) {
+            return $this->jsonFactory->create([
+                'error' => 'The product was not found.',
+                'total' => ($cart->getQuote()->getSubtotal() ?: '0.00')
+            ]);
+        }
+
         $product = $this->productRepository->getById($payload['id'], false, $storeId);
 
         if (!$product->getId()) {
             $this->snappicHelper->log('Product with ID ' . $payload['id'] . ' was not found.');
-            return $this->jsonResultFactory->create([
+            return $this->jsonFactory->create([
                 'error' => 'The product was not found.',
                 'total' => ($cart->getQuote()->getSubtotal() ?: '0.00')
             ]);
@@ -122,12 +137,12 @@ class Add extends \Magento\Framework\App\Action\Action
             $this->cart->save();
             $this->session->setCartWasUpdated(true);
 
-            return $this->jsonResultFactory->create([
+            return $this->jsonFactory->create([
                 'status' => 'success',
                 'total' => ($this->cart->getQuote()->getSubtotal() ?: '0.00')
             ]);
         } catch (Exception $e) {
-            return $this->jsonResultFactory->create([
+            return $this->jsonFactory->create([
                 'error' => $e->getMessage(),
                 'total' => ($this->cart->getQuote()->getSubtotal() ?: '0.00')
             ]);
