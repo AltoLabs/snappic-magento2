@@ -2,8 +2,8 @@
 
 namespace AltoLabs\Snappic\Controller\Data;
 
-use \Magento\Catalog\Model\Product\Attribute\Source\Status;
-use \Magento\Catalog\Model\Product\Visibility;
+use Magento\Catalog\Model\Product\Attribute\Source\Status;
+use Magento\Catalog\Model\Product\Visibility;
 
 class Products extends AbstractDataAction
 {

@@ -2,7 +2,7 @@
 
 namespace AltoLabs\Snappic\Controller\Data;
 
-class Add extends \Magento\Framework\App\Action\Action
+abstract class AbstractDataAction extends \Magento\Framework\App\Action\Action
 {
     /**
      * @var \Magento\Framework\Controller\Result\JsonFactory
