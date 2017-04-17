@@ -5,9 +5,9 @@ namespace AltoLabs\Snappic\Helper;
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
     /**
-     * @var \Magento\Framework\App\DeploymentConfig\Reader
+     * @var \Magento\Framework\App\DeploymentConfig
      */
-    protected $configReader;
+    protected $deploymentConfig;
 
     /**
      * @var \Magento\Framework\App\Config\Storage\WriterInterface
@@ -51,7 +51,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     /**
      * @param \Magento\Framework\App\Helper\Context                 $context
-     * @param \Magento\Framework\App\DeploymentConfig\Reader        $configReader
+     * @param \Magento\Framework\App\DeploymentConfig\Reader        $deploymentConfig
      * @param \Magento\Framework\App\Config\Storage\WriterInterface $writerInterface
      * @param \Magento\Framework\Oauth\Helper\Oauth                 $oauthHelper
      * @param \Magento\Customer\Model\Session                       $sessionManager
@@ -62,7 +62,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
-        \Magento\Framework\App\DeploymentConfig\Reader $configReader,
+        \Magento\Framework\App\DeploymentConfig $deploymentConfig,
         \Magento\Framework\App\Config\Storage\WriterInterface $writerInterface,
         \Magento\Framework\Oauth\Helper\Oauth $oauthHelper,
         \Magento\Customer\Model\Session $sessionManager,
@@ -71,7 +71,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Framework\Logger\Monolog $logger,
         \AltoLabs\Snappic\Model\Logger $logHandler
     ) {
-        $this->configReader = $configReader;
+        $this->deploymentConfig = $deploymentConfig;
         $this->writerInterface = $writerInterface;
         $this->oauthHelper = $oauthHelper;
         $this->sessionManager = $sessionManager;
@@ -157,12 +157,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getAdminHtmlPath()
     {
-        $config = $this->configReader->load();
-        $path = 'admin';
-        if (!empty($config['backend']['frontName'])) {
-            $path = $config['backend']['frontName'];
-        }
-        return (string) $path;
+        return (string) $this->deploymentConfig
+            ->get(\Magento\Backend\Setup\ConfigOptionsList::CONFIG_PATH_BACKEND_FRONTNAME) ?: 'admin';
     }
 
     /**
