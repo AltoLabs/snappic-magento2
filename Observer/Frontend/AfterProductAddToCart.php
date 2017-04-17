@@ -11,6 +11,9 @@ class AfterProductAddToCart implements ObserverInterface
      */
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
+        echo '<pre>';
+        print_r($observer);
+        exit;
         // $product = Mage::getModel('catalog/product')->load(Mage::app()->getRequest()->getParam('product', 0));
         // if ($product->getId()) {
         //     Mage::getSingleton('core/session')->setCartProductJustAdded(

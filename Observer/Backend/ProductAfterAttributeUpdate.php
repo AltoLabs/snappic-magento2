@@ -11,8 +11,6 @@ class ProductAfterSave implements ObserverInterface
      */
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
-        // $productIds = $observer->getEvent()->getProductIds();
-        // $this->_handleProductsChanges($productIds);
-        // return $this;
+        $this->handleProductChanges((array) $observer->getEvent()->getProductIds());
     }
 }

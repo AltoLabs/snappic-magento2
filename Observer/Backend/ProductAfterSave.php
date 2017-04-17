@@ -2,17 +2,16 @@
 
 namespace AltoLabs\Snappic\Observer\Backend;
 
+use AltoLabs\Snappic\Observer\AbstractObserver;
 use Magento\Framework\Event\ObserverInterface;
 
-class ProductAfterSave implements ObserverInterface
+class ProductAfterSave extends AbstractObserver implements ObserverInterface
 {
     /**
      * @param \Magento\Framework\Event\Observer $observer
      */
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
-        // $productId = $observer->getEvent()->getProduct()->getId();
-        // $this->_handleProductsChanges(array($productId));
-        // return $this;
+        $this->handleProductChanges([$observer->getEvent()->getProduct()->getId()]);
     }
 }
