@@ -20,11 +20,6 @@ class Snappic extends \Magento\Framework\View\Element\Template
     protected $checkoutSession;
 
     /**
-     * @var \Magento\Store\Model\StoreManagerInterface
-     */
-    protected $storeManager;
-
-    /**
      * @var \Magento\Framework\Registry
      */
     protected $registry;
@@ -34,6 +29,7 @@ class Snappic extends \Magento\Framework\View\Element\Template
      * @param \AltoLabs\Snappic\Model\Connect                  $connect
      * @param \AltoLabs\Snappic\Helper\Data                    $helper
      * @param \Magento\Checkout\Model\Session                  $checkoutSession
+     * @param \Magento\Framework\Registry                      $registry
      * @param array                                            $data
      */
     public function __construct(
@@ -41,14 +37,12 @@ class Snappic extends \Magento\Framework\View\Element\Template
         \AltoLabs\Snappic\Model\Connect $connect,
         \AltoLabs\Snappic\Helper\Data $helper,
         \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\Registry $registry,
         array $data = []
     ) {
         $this->connect = $connect;
         $this->helper = $helper;
         $this->checkoutSession = $checkoutSession;
-        $this->storeManager = $storeManager;
         $this->registry = $registry;
 
         parent::__construct($context, $data);
@@ -135,7 +129,7 @@ class Snappic extends \Magento\Framework\View\Element\Template
      */
     public function getCurrencyCode()
     {
-        return (string) $this->storeMananger->getStore()->getCurrentCurrencyCode();
+        return (string) $this->_storeManager->getStore()->getCurrentCurrencyCode();
     }
 
     /**

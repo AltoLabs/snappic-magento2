@@ -10,11 +10,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     protected $configReader;
 
     /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
-     */
-    protected $scopeConfig;
-
-    /**
      * @var \Magento\Framework\App\Config\Storage\WriterInterface
      */
     protected $writerInterface;
@@ -57,7 +52,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     /**
      * @param \Magento\Framework\App\Helper\Context                 $context
      * @param \Magento\Framework\App\DeploymentConfig\Reader        $configReader
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface    $scopeConfig
      * @param \Magento\Framework\App\Config\Storage\WriterInterface $writerInterface
      * @param \Magento\Framework\Oauth\Helper\Oauth                 $oauthHelper
      * @param \Magento\Customer\Model\Session                       $sessionManager
@@ -69,7 +63,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
         \Magento\Framework\App\DeploymentConfig\Reader $configReader,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Framework\App\Config\Storage\WriterInterface $writerInterface,
         \Magento\Framework\Oauth\Helper\Oauth $oauthHelper,
         \Magento\Customer\Model\Session $sessionManager,
@@ -79,7 +72,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         \AltoLabs\Snappic\Model\Logger $logHandler
     ) {
         $this->configReader = $configReader;
-        $this->scopeConfig = $scopeConfig;
         $this->writerInterface = $writerInterface;
         $this->oauthHelper = $oauthHelper;
         $this->sessionManager = $sessionManager;
