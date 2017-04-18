@@ -15,20 +15,30 @@ class Messages extends \Magento\Backend\Block\Template
     protected $writerInterface;
 
     /**
-     * @param \Magento\Backend\Block\Template\Context               $context
-     * @param \AltoLabs\Snappic\Helper\Data                         $helper
-     * @param \Magento\Framework\App\Config\Storage\WriterInterface $writerInterface
-     * @param array                                                 $data
+     * @var \Magento\Framework\App\Config\ReinitableConfigInterface $reinitableConfigInterface
+     */
+    protected $reinitableConfigInterface;
+
+    /**
+     * @param \Magento\Backend\Block\Template\Context                 $context
+     * @param \AltoLabs\Snappic\Helper\Data                           $helper
+     * @param \Magento\Framework\App\Config\Storage\WriterInterface   $writerInterface
+     * @param \Magento\Framework\App\Config\ReinitableConfigInterface $reinitableConfigInterface
+     * @param array                                                   $data
      */
     public function __construct(
         \Magento\Backend\Block\Template\Context $context,
         \AltoLabs\Snappic\Helper\Data $helper,
         \Magento\Framework\App\Config\Storage\WriterInterface $writerInterface,
+        \Magento\Framework\App\Config\ReinitableConfigInterface $reinitableConfigInterface,
         array $data = []
     ) {
         $this->helper = $helper;
-        $this->scopeConfig = $scopeConfig;
         $this->writerInterface = $writerInterface;
+        $this->reinitableConfigInterface = $reinitableConfigInterface;
+
+        // Don't cache this block
+        $this->setData('cache_lifetime', null);
 
         parent::__construct($context);
     }
@@ -54,7 +64,7 @@ class Messages extends \Magento\Backend\Block\Template
      */
     public function getIsDisplayed()
     {
-        return $this->_scopeConfig($this->helper->getConfigPath('system/completion_message')) === 'displayed';
+        return $this->_scopeConfig->getValue($this->helper->getConfigPath('system/completion_message')) === 'displayed';
     }
 
     /**
@@ -66,6 +76,9 @@ class Messages extends \Magento\Backend\Block\Template
     public function setIsDisplayed($displayed = true)
     {
         $this->writerInterface->save($this->helper->getConfigPath('system/completion_message'), 'displayed');
+        // Reset the cached store config for the next load
+        $this->reinitableConfigInterface->reinit();
+
         return $this;
     }
 

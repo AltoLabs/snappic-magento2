@@ -6,12 +6,12 @@
             instance="AltoLabs\Snappic\Observer\Backend\ProductAfterSave" />
     </event>
 
-    <!-- Need to check this event name
-    <event name="catalog_product_attribute_update_after">
+    <!-- The "catalog_product_attribute_update_after" event was removed from core, so we have a "plugin" that re-throws
+    it under a unique alias -->
+    <event name="altolabs_catalog_product_attribute_update_after">
         <observer name="altolabs_snappic_observer_backend_productaftersave"
-            instance="AltoLabs\Snappic\Observer\Backend\ProductAfterSave" />
+            instance="AltoLabs\Snappic\Observer\Backend\ProductAfterAttributeUpdate" />
     </event>
-    -->
 
     <event name="catalog_product_delete_before">
         <observer name="altolabs_snappic_observer_backend_productbeforedelete"

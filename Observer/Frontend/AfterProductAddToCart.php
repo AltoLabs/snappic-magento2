@@ -51,7 +51,7 @@ class AfterProductAddToCart implements ObserverInterface
                     'id'            => $product->getId(),
                     'qty'           => $this->request->getParam('qty', 1),
                     'name'          => $product->getName(),
-                    'price'         => $product->getPrice(),
+                    'price'         => $product->getFinalPrice(),
                     'category_name' => '' // We can't determine this?
                 ])
             );
