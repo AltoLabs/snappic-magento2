@@ -5,7 +5,7 @@ namespace AltoLabs\Snappic\Observer\Backend;
 use AltoLabs\Snappic\Observer\AbstractObserver;
 use Magento\Framework\Event\ObserverInterface;
 
-class ProductAfterSave extends AbstractObserver implements ObserverInterface
+class ProductAfterAttributeUpdate extends AbstractObserver implements ObserverInterface
 {
     /**
      * @param \Magento\Framework\Event\Observer $observer

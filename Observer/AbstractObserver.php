@@ -49,7 +49,7 @@ abstract class AbstractObserver
      * @param  array $productIds
      * @return $this
      */
-    protected function handleProductsChanges(array $productIds = [])
+    protected function handleProductChanges(array $productIds = [])
     {
         $data = [];
         foreach ($productIds as $productId) {
@@ -67,12 +67,12 @@ abstract class AbstractObserver
                 }
             } else {
                 // Product is simple. It might be part of a configurable or not...
-                $parentIds = Mage::getModel('catalog/product_type_configurable')->getParentIdsByChild($productId);
+                $parentIds = $this->configurable->getParentIdsByChild($productId);
                 // No parent IDs, product can be sent directly.
                 if (count($parentIds) == 0) {
                     // If the product gets disabled, directly delete it.
                     if ((int)$product->getStatus() != \Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED) {
-                        $this->getConnect()
+                        $this->connect
                             ->setSendable([$this->helper->getSendableProductData($product)])
                             ->notifySnappicApi('products/delete');
                     } else {

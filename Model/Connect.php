@@ -65,7 +65,7 @@ class Connect extends \Magento\Framework\Model\AbstractModel
     {
         $this->dataHelper->log('Snappic: notifySnappicApi ' . $this->dataHelper->getApiHost() . '/magento/webhooks');
 
-        $client = new \Magento\Framework\HTTP\ZendClient($this->dataHelper->getApiHost() . '/magento/webhooks');
+        $client = new \Zend_Http_Client($this->dataHelper->getApiHost() . '/magento/webhooks');
         $client->setMethod(\Zend_Http_Client::POST);
         $sendable = $this->seal($this->getSendable());
         $client->setRawData($sendable);
@@ -76,12 +76,13 @@ class Connect extends \Magento\Framework\Model\AbstractModel
             'X-Magento-Webhook-Signature' => $this->signPayload($sendable),
         ];
         $client->setHeaders($headers);
+
         try {
             $response = $client->request();
             if (!$response->isSuccessful()) {
                 return false;
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return false;
         }
         return true;
@@ -101,17 +102,15 @@ class Connect extends \Magento\Framework\Model\AbstractModel
         }
 
         $domain = $this->dataHelper->getDomain();
-        $client = new \Magento\Framework\HTTP\ZendClient(
-            $this->dataHelper->getApiHost() . '/stores/current?domain=' . $domain
-        );
+        $client = new \Zend_Http_Client($this->dataHelper->getApiHost() . '/stores/current?domain=' . $domain);
         $client->setMethod(\Zend_Http_Client::GET);
 
         try {
-            $body = $client->request()->getBody();
+            $body = (string) $client->request()->getBody();
             $snappicStore = $this->jsonHelper->jsonDecode($body);
             $this->setData('snappicStore', $snappicStore);
             return $snappicStore;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->dataHelper->log($e->getMessage());
         }
     }

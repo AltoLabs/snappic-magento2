@@ -240,7 +240,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
         try {
             $stockItem = $this->getProductStockItem($product);
-            if ($stockItem->getManageStock()) {
+            if ($stockItem && $stockItem->getManageStock()) {
                 if ($stockItem->getIsInStock()) {
                     return (int)$stockItem->getQty();
                 } else {
@@ -378,7 +378,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getSendableImagesData(\Magento\Catalog\Model\Product $product)
     {
-        $images = $product->getMediaGalleryImages();
+        $images = (array) $product->getMediaGalleryImages();
         $imagesData = [];
         foreach ($images as $image) {
             $imagesData[] = [
