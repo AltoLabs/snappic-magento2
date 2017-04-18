@@ -131,9 +131,11 @@ class Connect extends \Magento\Framework\Model\AbstractModel
 
         if (empty($facebookId)) {
             $this->dataHelper->log('Trying to fetch Facebook ID from Snappic API...');
-            $facebookId = $this->getSnappicStore()->facebook_pixel_id;
-
-            if (!empty($facebookId)) {
+            $snappicStore = $this->getSnappicStore();
+            if (is_object($snappicStore)
+                && property_exists($snappicStore, 'facebook_pixel_id')
+                && !empty($snappicStore->facebook_pixel_id)
+            ) {
                 $this->dataHelper->log('Got facebook ID from API: ' . $facebookId);
                 $this->writerInterface->save($configPath, $facebookId);
             }
