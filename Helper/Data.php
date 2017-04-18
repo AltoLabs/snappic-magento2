@@ -219,7 +219,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function getProductStock(\Magento\Catalog\Model\Product $product)
     {
         // Product is simple...
-        if (!$this->isConfigurable()) {
+        if (!$this->isConfigurable($product)) {
             $productId = $product->getId();
             // If *any* of the parent isn't in stock, we consider this product isn't.
             $parentIds = $product->getTypeInstance()->getParentIdsByChild($productId);
