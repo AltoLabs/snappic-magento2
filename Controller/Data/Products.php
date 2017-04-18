@@ -29,6 +29,6 @@ class Products extends AbstractDataAction
             }
         }
 
-        return $this->jsonFactory->create($data);
+        return $this->jsonFactory->create()->setData($data);
     }
 }

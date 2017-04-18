@@ -61,31 +61,39 @@ abstract class AbstractDataAction extends \Magento\Framework\App\Action\Action
         return $this->snappicHelper->getToken() == $this->getRequest()->getParam('token');
     }
 
+    /**
+     * Return an "unauthorised" message for protected endpoints with a 401 header
+     *
+     * @return \Magento\Framework\Controller\Result\Json
+     */
     protected function renderUnauthorized()
     {
-        $this->getResponse()
-            ->clearHeaders()
-            ->setHeader('HTTP/1.0', 401, true)
-            ->setHeader('Content-Type', 'application/json; charset=UTF-8')
-            ->setBody('Unauthorized');
+        $this->getResponse()->setHttpResponseCode(401);
+
+        return $this->jsonFactory->create()->setData([
+            'error' => true,
+            'message' => 'Unauthorized'
+        ]);
     }
 
     /**
+     * Get the current collection page number
+     *
      * @return int
      */
     protected function getPage()
     {
-        $page = (int) $this->getRequest()->getParam('page');
-        return $page == null ? 1 : $page;
+        return (int) $this->getRequest()->getParam('page', 1);
     }
 
     /**
+     * Get the current pagination limit
+     *
      * @return int
      */
     protected function getPerPage()
     {
-        $perPage = (int) $this->getRequest()->getParam('per_page');
-        return empty($perPage) ? 50 : $perPage;
+        return (int) $this->getRequest()->getParam('per_page', 50);
     }
 
     /**
