@@ -324,7 +324,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             'sku'                 => $product->getSku(),
             'price'               => $product->getPrice(),
             'inventory_quantity'  => $this->getProductStock($product),
-            'handle'              => $product->getUrlKey(),
+            'handle'              => $product->getUrlModel()->getUrl($product),
             'variants'            => $this->getSendableVariantsData($product),
             'images'              => $this->getSendableImagesData($product),
             'options'             => $this->getSendableOptionsData($product),
