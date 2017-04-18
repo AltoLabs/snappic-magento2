@@ -46,7 +46,7 @@ class Clear extends \Magento\Framework\App\Action\Action
         $this->cart->truncate()->save();
         $this->session->setCartWasUpdated(true);
 
-        return $this->jsonFactory->create([
+        return $this->jsonFactory->create()->setData([
             'status' => 'success',
             'total' => ($this->cart->getQuote()->getSubtotal() ?: '0.00')
         ]);

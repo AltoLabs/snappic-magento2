@@ -13,7 +13,7 @@ class Store extends AbstractDataAction
         $store = $this->snappicHelper->getCurrentStore();
         $storeName = $store->getGroup()->getName();
 
-        return $this->jsonFactory->create([
+        return $this->jsonFactory->create()->setData([
             'id'                          => (int) $store->getId(),
             'name'                        => $storeName,
             'domain'                      => $this->snappicHelper->getDomain(),

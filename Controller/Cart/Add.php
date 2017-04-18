@@ -71,36 +71,36 @@ class Add extends \Magento\Framework\App\Action\Action
      */
     public function execute()
     {
-        $cart = $this->cart;
         $storeId = $this->snappicHelper->getCurrentStore()->getId();
 
         try {
             $payload = $this->jsonHelper->jsonDecode($this->getRequest()->getContent());
         } catch (\Zend_Json_Exception $e) {
-            return $this->jsonFactory->create([
+            return $this->jsonFactory->create()->setData([
                 'error' => 'The request was not valid JSON: ' . $e->getMessage(),
-                'total' => ($cart->getQuote()->getSubtotal() ?: '0.00')
+                'total' => ($this->cart->getQuote()->getSubtotal() ?: '0.00')
             ]);
         }
 
         if (empty($payload['id'])) {
-            return $this->jsonFactory->create([
-                'error' => 'The product was not found.',
-                'total' => ($cart->getQuote()->getSubtotal() ?: '0.00')
-            ]);
-        }
-
-        $product = $this->productRepository->getById($payload['id'], false, $storeId);
-
-        if (!$product->getId()) {
             $this->snappicHelper->log('Product with ID ' . $payload['id'] . ' was not found.');
-            return $this->jsonFactory->create([
+            return $this->jsonFactory->create()->setData([
                 'error' => 'The product was not found.',
-                'total' => ($cart->getQuote()->getSubtotal() ?: '0.00')
+                'total' => ($this->cart->getQuote()->getSubtotal() ?: '0.00')
             ]);
         }
 
         try {
+            $product = $this->productRepository->getById($payload['id'], false, $storeId);
+
+            if (!$product || !$product->getId()) {
+                $this->snappicHelper->log('Product with ID ' . $payload['id'] . ' was not found.');
+                return $this->jsonFactory->create()->setData([
+                    'error' => 'The product was not found.',
+                    'total' => ($this->cart->getQuote()->getSubtotal() ?: '0.00')
+                ]);
+            }
+
             // If product is part of configurables.
             $parentIds = $this->configurable->getParentIdsByChild($product->getId());
             if (count($parentIds) != 0) {
@@ -115,18 +115,17 @@ class Add extends \Magento\Framework\App\Action\Action
                             $attrs[$attr['attribute_id']] = $curVal;
                         }
                     }
-                    $req = new \Magento\Framework\DataObject;
-                    $req->setData([
+                    $req = new \Magento\Framework\DataObject([
                         'product' => $parentId,
                         'qty' => 1,
                         'super_attribute' => $attrs
                     ]);
-                    $cart->addProduct($parent, $req);
+                    $this->cart->addProduct($parent, $req);
                     break;
                 }
             } else {
                 // No parent ID just add the product.
-                $this->cart->addProduct($product);
+                $this->cart->addProduct($product, ['qty' => 1]);
             }
 
             if (!$this->cart->getCustomerSession()->getCustomer()->getId()
@@ -137,12 +136,12 @@ class Add extends \Magento\Framework\App\Action\Action
             $this->cart->save();
             $this->session->setCartWasUpdated(true);
 
-            return $this->jsonFactory->create([
+            return $this->jsonFactory->create()->setData([
                 'status' => 'success',
                 'total' => ($this->cart->getQuote()->getSubtotal() ?: '0.00')
             ]);
-        } catch (Exception $e) {
-            return $this->jsonFactory->create([
+        } catch (\Exception $e) {
+            return $this->jsonFactory->create()->setData([
                 'error' => $e->getMessage(),
                 'total' => ($this->cart->getQuote()->getSubtotal() ?: '0.00')
             ]);

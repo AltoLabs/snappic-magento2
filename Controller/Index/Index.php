@@ -4,6 +4,24 @@ namespace AltoLabs\Snappic\Controller\Index;
 
 class Index extends \Magento\Framework\App\Action\Action
 {
+    /**
+     * @var \AltoLabs\Snappic\Helper\Data
+     */
+    protected $helper;
+
+    /**
+     * @param \Magento\Framework\App\Action\Context $context
+     * @param \AltoLabs\Snappic\Helper\Data         $helper
+     */
+    public function __construct(
+        \Magento\Framework\App\Action\Context $context,
+        \AltoLabs\Snappic\Helper\Data $helper
+    ) {
+        $this->helper = $helper;
+
+        parent::__construct($context);
+    }
+
     public function execute()
     {
         $this->getResponse()->setBody($this->indexPageHtml());
@@ -14,7 +32,7 @@ class Index extends \Magento\Framework\App\Action\Action
      */
     protected function indexPageHtml()
     {
-        $storeAssetsHost = Mage::helper('altolabs_snappic')->getStoreAssetsHost();
+        $storeAssetsHost = $this->helper->getStoreAssetsHost();
         return "
             <div style=\"width:100%;height:auto\"><snpc-main></snpc-main></div>
             <script>
