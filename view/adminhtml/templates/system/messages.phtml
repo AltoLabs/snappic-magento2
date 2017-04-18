@@ -1,0 +1,10 @@
+<?php if ($block->getShowAdminMessage()) : ?>
+    <div class="message-system message-system-unread" style="margin-top:10px">
+        <div class="message-system-inner">
+            <img src="http://snappic.io/static/img/general/logo.svg" style="padding:10px;background-color:#E85B52;">
+            <div style="font-size:16px;font-weight:400;letter-spacing:1.2px;line-height: 1.2;border:0;padding:0;margin:24px 4px">Almost done!</div>
+            <script>window.Snappic={};window.Snappic.signup=function(){window.location='<?php echo $block->getLink() ?>';};</script>
+            <img src="http://store.snappic.io/images/magento_continue_signup.png" style="width:100%;max-width:460px;cursor:pointer;" onclick="Snappic.signup()">
+        </div>
+    </div>
+<?php endif;
