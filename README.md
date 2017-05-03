@@ -54,6 +54,7 @@ Once you have installed the module with Composer, you will need to allow Magento
 ```
 php bin/magento setup:di:compile
 php bin/magento cache:flush && php bin/magento cache:clean
+php bin/magento setup:upgrade
 ```
 
 Compilation can take some time.
