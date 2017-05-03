@@ -44,7 +44,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      *
      * @var string
      */
-    const CONFIG_PREFIX = 'snappic/';
+    const CONFIG_PREFIX = 'altolabs_config/';
     const API_HOST_DEFAULT = 'https://api.snappic.io';
     const STORE_ASSETS_HOST_DEFAULT = 'https://store.snappic.io';
     const SNAPPIC_ADMIN_URL_DEFAULT = 'https://www.snappic.io';
@@ -378,9 +378,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function getSendableImagesData(\Magento\Catalog\Model\Product $product)
     {
-        $images = (array) $product->getMediaGalleryImages();
+        /** @var \Magento\Framework\Data\Collection $images */
+        $images = $product->getMediaGalleryImages();
         $imagesData = [];
         foreach ($images as $image) {
+            /** @var \Magento\Framework\DataObject $image */
             $imagesData[] = [
                 'id'         => $image->getId(),
                 'src'        => $image->getUrl(),
