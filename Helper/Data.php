@@ -200,7 +200,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $secret = $this->oauthHelper->generateTokenSecret();
         $this->writerInterface->save($this->getConfigPath('security/token'), $token);
         $this->writerInterface->save($this->getConfigPath('security/secret'), $secret);
-        // Mage::app()->getConfig()->reinit();
 
         $data = [
             'token' => $token,
