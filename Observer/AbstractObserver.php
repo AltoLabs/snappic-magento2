@@ -85,7 +85,7 @@ abstract class AbstractObserver
                         $parent = $this->productRepository->getById($parentId, true);
                         // Save the parent to force the updated_at column to have changed.
                         $updatedParent = $this->productRepository->save($parent);
-                        $data[] = $helper->getSendableProductData($updatedParent);
+                        $data[] = $this->helper->getSendableProductData($updatedParent);
                     }
                 }
             }
