@@ -111,7 +111,7 @@ class Connect extends \Magento\Framework\Model\AbstractModel
             $this->setData('snappicStore', $snappicStore);
             return $snappicStore;
         } catch (\Exception $e) {
-            $this->dataHelper->log($e->getMessage());
+            $this->dataHelper->log('Failed retrieving Snappic Store: ' . $e->getMessage());
         }
     }
 
@@ -131,10 +131,8 @@ class Connect extends \Magento\Framework\Model\AbstractModel
         if (empty($facebookId)) {
             $this->dataHelper->log('Trying to fetch Facebook ID from Snappic API...');
             $snappicStore = $this->getSnappicStore();
-            if (is_object($snappicStore)
-                && property_exists($snappicStore, 'facebook_pixel_id')
-                && !empty($snappicStore->facebook_pixel_id)
-            ) {
+            if (!empty($snappicStore['facebook_pixel_id'])) {
+                $facebookId = $snappicStore['facebook_pixel_id'];
                 $this->dataHelper->log('Got facebook ID from API: ' . $facebookId);
                 $this->writerInterface->save($configPath, $facebookId);
             }
