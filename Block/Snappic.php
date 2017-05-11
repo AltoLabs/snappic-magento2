@@ -55,7 +55,7 @@ class Snappic extends \Magento\Framework\View\Element\Template
      */
     public function getShowConversionScript()
     {
-        if (empty($this->getFacebookId())) {
+        if (empty($this->getFacebookId(false))) {
             return false;
         }
 
@@ -75,7 +75,7 @@ class Snappic extends \Magento\Framework\View\Element\Template
      */
     public function getShowProductScript()
     {
-        if (empty($this->getFacebookId()) || !$this->registry->registry('current_product')) {
+        if (empty($this->getFacebookId(false)) || !$this->registry->registry('current_product')) {
             return false;
         }
         return true;
@@ -88,7 +88,7 @@ class Snappic extends \Magento\Framework\View\Element\Template
      */
     public function getShowVisitorScript()
     {
-        return !empty($this->getFacebookId());
+        return !empty($this->getFacebookId(true));
     }
 
     /**
@@ -96,9 +96,9 @@ class Snappic extends \Magento\Framework\View\Element\Template
      *
      * @return string
      */
-    public function getFacebookId()
+    public function getFacebookId($fetchWhenNone)
     {
-        return (string) $this->connect->getFacebookId();
+        return (string) $this->connect->getFacebookId($fetchWhenNone);
     }
 
     /**
