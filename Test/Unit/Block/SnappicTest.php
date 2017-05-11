@@ -68,7 +68,7 @@ class SnappicTest extends \PHPUnit_Framework_TestCase
     {
         $this->connect->expects($this->once())->method('getFacebookId')->willReturn('abcdef');
 
-        $this->assertSame('abcdef', $this->block->getFacebookId());
+        $this->assertSame('abcdef', $this->block->getFacebookId(false));
     }
 
     /**
