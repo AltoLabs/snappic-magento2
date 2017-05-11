@@ -4,6 +4,8 @@ namespace AltoLabs\Snappic\Model;
 
 class Connect extends \Magento\Framework\Model\AbstractModel
 {
+    const STORE_DEFAULTS = array('facebook_pixel_id' => null);
+
     /**
      * The sendable data
      *
@@ -107,11 +109,15 @@ class Connect extends \Magento\Framework\Model\AbstractModel
 
         try {
             $body = (string) $client->request()->getBody();
-            $snappicStore = $this->jsonHelper->jsonDecode($body);
+            $snappicStore = array_merge(
+                self::STORE_DEFAULTS,
+                $this->jsonHelper->jsonDecode($body)
+            );
             $this->setData('snappicStore', $snappicStore);
             return $snappicStore;
         } catch (\Exception $e) {
             $this->dataHelper->log('Failed retrieving Snappic Store: ' . $e->getMessage());
+            return self::STORE_DEFAULTS;
         }
     }
 
@@ -120,24 +126,25 @@ class Connect extends \Magento\Framework\Model\AbstractModel
      *
      * @return string
      */
-    public function getFacebookId()
+    public function getFacebookId($fetchWhenNone)
     {
         $configPath = $this->dataHelper->getConfigPath('facebook/pixel_id');
-        $facebookId = (string) $this->scopeConfig->getValue(
+        $fbId = (string) $this->scopeConfig->getValue(
             $configPath,
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
 
-        if (empty($facebookId)) {
+        if (empty($fbId) && $fetchWhenNone) {
             $this->dataHelper->log('Trying to fetch Facebook ID from Snappic API...');
             $snappicStore = $this->getSnappicStore();
-            if (!empty($snappicStore['facebook_pixel_id'])) {
-                $facebookId = $snappicStore['facebook_pixel_id'];
-                $this->dataHelper->log('Got facebook ID from API: ' . $facebookId);
-                $this->writerInterface->save($configPath, $facebookId);
+            $fbId = $snappicStore['facebook_pixel_id'];
+            if (!empty($fbId)) {
+                $fbId = $snappicStore['facebook_pixel_id'];
+                $this->dataHelper->log('Got facebook ID from API: ' . $fbId);
+                $this->writerInterface->save($configPath, $fbId);
             }
         }
-        return $facebookId;
+        return $fbId;
     }
 
     /**
