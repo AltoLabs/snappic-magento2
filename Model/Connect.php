@@ -97,24 +97,13 @@ class Connect extends \Magento\Framework\Model\AbstractModel
      */
     public function getSnappicStore()
     {
-        $this->dataHelper->log('Snappic: getSnappicStore');
-
-        if ($this->get('snappicStore')) {
-            return $this->get('snappicStore');
-        }
-
         $domain = $this->dataHelper->getDomain();
         $client = new \Zend_Http_Client($this->dataHelper->getApiHost() . '/stores/current?domain=' . $domain);
         $client->setMethod(\Zend_Http_Client::GET);
 
         try {
             $body = (string) $client->request()->getBody();
-            $snappicStore = array_merge(
-                self::STORE_DEFAULTS,
-                $this->jsonHelper->jsonDecode($body)
-            );
-            $this->setData('snappicStore', $snappicStore);
-            return $snappicStore;
+            return array_merge(self::STORE_DEFAULTS, $this->jsonHelper->jsonDecode($body));
         } catch (\Exception $e) {
             $this->dataHelper->log('Failed retrieving Snappic Store: ' . $e->getMessage());
             return self::STORE_DEFAULTS;

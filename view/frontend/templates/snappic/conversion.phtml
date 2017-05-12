@@ -1,8 +1,8 @@
 <?php
 /* This file is Copyright AltoLabs 2016. */
-if (!$block->getShowConversionScript()) {
-    return;
-}
+if (!$block->getShowConversionScript()) { return; }
+$fbId = $block->getFacebookId(true);
+if (empty($fbId)) { return; }
 
 $order = $block->getLastOrder();
 $total = $block->getOrderTotal($order);
@@ -11,7 +11,7 @@ $productIds = $block->getSnappicProductIds($order);
 ?>
 <script>
 !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','//connect.facebook.net/en_US/fbevents.js');
-fbq('init', '<?php echo $block->getFacebookId(false); ?>');
+fbq('init', '<?php echo $fbId; ?>');
 fbq('track', 'PageView');
 fbq('track', 'Purchase', {
   value: '<?php echo $total; ?>',
@@ -21,5 +21,5 @@ fbq('track', 'Purchase', {
 });
 </script>
 <noscript>
-  <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=<?php echo $id; ?>&ev=Purchase&value=<?php echo $total; ?>&currency=<?php echo $currency; ?>&noscript=1"/>
+  <img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=<?php echo $fbId; ?>&ev=Purchase&value=<?php echo $total; ?>&currency=<?php echo $currency; ?>&noscript=1"/>
 </noscript>
