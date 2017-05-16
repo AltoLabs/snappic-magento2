@@ -378,7 +378,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function getSendableImagesData(\Magento\Catalog\Model\Product $product)
     {
         /** @var \Magento\Framework\Data\Collection $images */
-        $images = $product->getMediaGalleryImages();
+        $images = $product->getMediaGalleryImages() ?: [];
         $imagesData = [];
         foreach ($images as $image) {
             /** @var \Magento\Framework\DataObject $image */
