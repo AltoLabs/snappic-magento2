@@ -40,6 +40,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     protected $logger;
 
     /**
+     * @var \Magento\ConfigurableProduct\Model\Product\Type\Configurable
+     */
+    protected $configurableType;
+
+    /**
      * Default API values and system configuration paths
      *
      * @var string
@@ -50,15 +55,16 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const SNAPPIC_ADMIN_URL_DEFAULT = 'https://www.snappic.io';
 
     /**
-     * @param \Magento\Framework\App\Helper\Context                 $context
-     * @param \Magento\Framework\App\DeploymentConfig\Reader        $deploymentConfig
-     * @param \Magento\Framework\App\Config\Storage\WriterInterface $writerInterface
-     * @param \Magento\Framework\Oauth\Helper\Oauth                 $oauthHelper
-     * @param \Magento\Customer\Model\Session                       $sessionManager
-     * @param \Magento\Store\Model\StoreManagerInterface            $storeManager
-     * @param \Magento\Catalog\Model\ProductRepository              $productRepository
-     * @param \Magento\Framework\Logger\Monolog                     $logger
-     * @param \AltoLabs\Snappic\Model\Logger                        $logHandler
+     * @param \Magento\Framework\App\Helper\Context                        $context
+     * @param \Magento\Framework\App\DeploymentConfig\Reader               $deploymentConfig
+     * @param \Magento\Framework\App\Config\Storage\WriterInterface        $writerInterface
+     * @param \Magento\Framework\Oauth\Helper\Oauth                        $oauthHelper
+     * @param \Magento\Customer\Model\Session                              $sessionManager
+     * @param \Magento\Store\Model\StoreManagerInterface                   $storeManager
+     * @param \Magento\Catalog\Model\ProductRepository                     $productRepository
+     * @param \Magento\Framework\Logger\Monolog                            $logger
+     * @param \AltoLabs\Snappic\Model\Logger                               $logHandler
+     * @param \Magento\ConfigurableProduct\Model\Product\Type\Configurable $configurableType
      */
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
@@ -69,7 +75,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Catalog\Model\ProductRepository $productRepository,
         \Magento\Framework\Logger\Monolog $logger,
-        \AltoLabs\Snappic\Model\Logger $logHandler
+        \AltoLabs\Snappic\Model\Logger $logHandler,
+        \Magento\ConfigurableProduct\Model\Product\Type\Configurable $configurableType
     ) {
         $this->deploymentConfig = $deploymentConfig;
         $this->writerInterface = $writerInterface;
@@ -79,6 +86,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->productRepository = $productRepository;
         $this->logger = $logger;
         $this->logger->pushHandler($logHandler);
+        $this->configurableType = $configurableType;
 
         parent::__construct($context);
     }
@@ -221,7 +229,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if (!$this->isConfigurable($product)) {
             $productId = $product->getId();
             // If *any* of the parent isn't in stock, we consider this product isn't.
-            $parentIds = $product->getTypeInstance()->getParentIdsByChild($productId);
+            $parentIds = $this->configurableType->getParentIdsByChild($productId);
             if (count($parentIds) != 0) {
                 foreach ($parentIds as $parentId) {
                     $parent = $this->productRepository->getById($parentId);
