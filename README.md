@@ -25,7 +25,7 @@ repository.
     },
     {
         "type": "vcs",
-        "url": "git@github.com:AltoLabs/snappic-magento-2-extension.git"
+        "url": "git@github.com:AltoLabs/snappic-magento2.git"
     }
 ],
 ```
@@ -33,14 +33,14 @@ repository.
 You can now install the module:
 
 ```
-composer require altolabs/snappic-magento-2 1.0.x-dev
+composer require altolabs/snappic-magento2 1.0.x-dev
 ```
 
 This will install the latest unstable version of the code. If you want to install a stable version, use a stable semver
 constraint - for example:
 
 ```
-composer require altolabs/snappic-magento-2 ^1.0
+composer require altolabs/snappic-magento2 ^1.0
 ```
 
 You will also need to ensure that the `"minimum-stability"` in your Magento 2 project is permissive enough to let you
@@ -72,7 +72,7 @@ This module contains some automated tests - you can run them as such (from the M
 ### Unit tests
 
 ```
-vendor/bin/phpunit -c dev/tests/unit/phpunit.xml.dist vendor/altolabs/snappic-magento-2/Test/Unit/
+vendor/bin/phpunit -c dev/tests/unit/phpunit.xml.dist vendor/altolabs/snappic-magento2/Test/Unit/
 ```
 
 ### Integration tests
