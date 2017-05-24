@@ -3,7 +3,11 @@
     <type name="Magento\Catalog\Model\Product\Action">
         <plugin name="altolabs_snappic_product_action_plugin"
             type="AltoLabs\Snappic\Model\Product\Action\Plugin"
-            sortOrder="100"
-            disabled="false" />
+            sortOrder="100" />
+    </type>
+    <type name="Magento\CatalogInventory\Model\ResourceModel\Stock">
+        <plugin name="altolabs_snappic_stock_plugin"
+            type="AltoLabs\Snappic\Model\ResourceModel\Stock\Plugin"
+            sortOrder="100" />
     </type>
 </config>
