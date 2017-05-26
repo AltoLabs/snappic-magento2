@@ -38,7 +38,7 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
                 'token' => $helper->getToken(),
                 'secret' => $helper->getSecret()
             ])
-            ->notifySnappicApi('application/installed');
+            ->notifySnappicApi('app/installed');
 
         $setup->endSetup();
     }
