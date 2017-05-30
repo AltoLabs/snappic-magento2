@@ -4,4 +4,8 @@
         <observer name="altolabs_snappic_observer_afterorderplace"
             instance="AltoLabs\Snappic\Observer\AfterOrderPlace" />
     </event>
+    <event name="altolabs_catalog_product_stock_save_after">
+        <observer name="altolabs_snappic_observer_stockchangeobserver"
+            instance="AltoLabs\Snappic\Observer\HandleStockChange" />
+    </event>
 </config>
