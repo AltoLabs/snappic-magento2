@@ -10,10 +10,12 @@ Integrate your Magento 2 store with Snappic.io.
 
 ## Installation
 
-### Configuring the module
+From your Magento 2 root, simply use composer like so:
 
-Once you have installed the module with Composer, you will need to allow Magento
-to discover it and be re-compiled:
+      composer require altolabs/snappic-magento2
+
+Once installed, you will need to allow Magento to discover the module and be
+re-compiled:
 
     php bin/magento setup:di:compile
     php bin/magento cache:flush && php bin/magento cache:clean
