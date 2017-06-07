@@ -10,32 +10,24 @@ class Messages extends \Magento\Backend\Block\Template
     protected $helper;
 
     /**
-     * @var \Magento\Framework\App\Config\Storage\WriterInterface
+     * @var \AltoLabs\Snappic\Model\Connect
      */
-    protected $writerInterface;
+    protected $connect;
 
     /**
-     * @var \Magento\Framework\App\Config\ReinitableConfigInterface $reinitableConfigInterface
-     */
-    protected $reinitableConfigInterface;
-
-    /**
-     * @param \Magento\Backend\Block\Template\Context                 $context
-     * @param \AltoLabs\Snappic\Helper\Data                           $helper
-     * @param \Magento\Framework\App\Config\Storage\WriterInterface   $writerInterface
-     * @param \Magento\Framework\App\Config\ReinitableConfigInterface $reinitableConfigInterface
-     * @param array                                                   $data
+     * @param \Magento\Backend\Block\Template\Context $context
+     * @param \AltoLabs\Snappic\Helper\Data           $helper
+     * @param \AltoLabs\Snappic\Model\Connect         $connect
+     * @param array                                   $data
      */
     public function __construct(
         \Magento\Backend\Block\Template\Context $context,
         \AltoLabs\Snappic\Helper\Data $helper,
-        \Magento\Framework\App\Config\Storage\WriterInterface $writerInterface,
-        \Magento\Framework\App\Config\ReinitableConfigInterface $reinitableConfigInterface,
+        \AltoLabs\Snappic\Model\Connect $connect,
         array $data = []
     ) {
         $this->helper = $helper;
-        $this->writerInterface = $writerInterface;
-        $this->reinitableConfigInterface = $reinitableConfigInterface;
+        $this->connect = $connect;
 
         // Don't cache this block
         $this->setData('cache_lifetime', null);
@@ -44,42 +36,34 @@ class Messages extends \Magento\Backend\Block\Template
     }
 
     /**
-     * Should the Snappic message been displayed?
+     * Whether to show the sandbox warning message
      *
      * @return bool
      */
-    public function getShowAdminMessage()
+    public function getShowSandboxWarning()
     {
-        if ($this->getIsDisplayed()) {
-            return false;
-        }
-        $this->setIsDisplayed(true);
-        return true;
+        return (bool) $this->getHelper()->getIsSandboxed();
     }
 
     /**
-     * Has the Snappic message been displayed already?
+     * Whether to show the "continue to signup" link for production use
      *
      * @return bool
      */
-    public function getIsDisplayed()
+    public function getShowDisplayContinueSignup()
     {
-        return $this->_scopeConfig->getValue($this->helper->getConfigPath('system/completion_message')) === 'displayed';
+        $pixel = $this->connect->getStoredFacebookPixelId();
+        return empty($pixel) || $pixel == \AltoLabs\Snappic\Model\Connect::SANDBOX_PIXEL_ID;
     }
 
     /**
-     * Set (and save to config) whether the Snappic message has been displayed
+     * Return the Snappic helper
      *
-     * @param boolean $displayed
-     * @return $this
+     * @return \AltoLabs\Snappic\Helper\Data
      */
-    public function setIsDisplayed($displayed = true)
+    public function getHelper()
     {
-        $this->writerInterface->save($this->helper->getConfigPath('system/completion_message'), 'displayed');
-        // Reset the cached store config for the next load
-        $this->reinitableConfigInterface->reinit();
-
-        return $this;
+        return $this->helper;
     }
 
     /**
@@ -89,8 +73,9 @@ class Messages extends \Magento\Backend\Block\Template
      */
     public function getLink()
     {
-        return $this->helper->getSnappicAdminUrl()
-            . '/?login&pricing&provider=magento&domain=' . urlencode($this->helper->getDomain())
-            . '&access_token=' . urlencode($this->helper->getToken() . ':' . $this->helper->getSecret());
+        $helper = $this->getHelper();
+        return $helper->getSnappicAdminUrl()
+            . '/?login&pricing&provider=magento&domain=' . urlencode($helper->getDomain())
+            . '&access_token=' . urlencode($helper->getToken() . ':' . $helper->getSecret());
     }
 }

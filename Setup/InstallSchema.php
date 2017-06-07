@@ -28,9 +28,12 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
     ) {
         $setup->startSetup();
 
+        // Note: the object manager must be used here as installation is too early for correctly configured
+        // DI dependencies that use sessions.
         $this->objectManager->get('Magento\Framework\App\State')->setAreaCode('adminhtml');
 
         $helper = $this->objectManager->get('AltoLabs\Snappic\Helper\Data');
+        $scopeConfigWriter = $this->objectManager->get('Magento\Framework\App\Config\Storage\WriterInterface');
 
         $this->objectManager
             ->get('AltoLabs\Snappic\Model\Connect')
@@ -38,7 +41,11 @@ class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
                 'token' => $helper->getToken(),
                 'secret' => $helper->getSecret()
             ])
-            ->notifySnappicApi('app/installed');
+            ->notifySnappicApi('app/installed', true);
+
+        $scopeConfigWriter->save($helper->getConfigPath('environment/sandboxed'), 1);
+        // Reset the cached store config for the next load
+        $this->objectManager->get('Magento\Framework\App\Config\ReinitableConfigInterface')->reinit();
 
         $setup->endSetup();
     }

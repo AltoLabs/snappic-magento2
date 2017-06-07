@@ -7,6 +7,13 @@ class Connect extends \Magento\Framework\Model\AbstractModel
     const STORE_DEFAULTS = array('facebook_pixel_id' => null);
 
     /**
+     * The sandbox Facebook pixel ID
+     *
+     * @var string
+     */
+    const SANDBOX_PIXEL_ID = '123123123';
+
+    /**
      * The sendable data
      *
      * @var array
@@ -61,13 +68,15 @@ class Connect extends \Magento\Framework\Model\AbstractModel
      * Send a notification to the Snappic API
      *
      * @param  string $topic
+     * @param  bool $bypassSandbox
      * @return bool Whether successful
      */
-    public function notifySnappicApi($topic)
+    public function notifySnappicApi($topic, $bypassSandbox = false)
     {
-        $this->dataHelper->log('Snappic: notifySnappicApi ' . $this->dataHelper->getApiHost() . '/magento/webhooks');
+        $host = $this->dataHelper->getApiHost($bypassSandbox);
+        $this->dataHelper->log('Snappic: notifySnappicApi ' . $host . '/magento/webhooks');
 
-        $client = new \Zend_Http_Client($this->dataHelper->getApiHost() . '/magento/webhooks');
+        $client = new \Zend_Http_Client($host . '/magento/webhooks');
         $client->setMethod(\Zend_Http_Client::POST);
         $sendable = $this->seal($this->getSendable());
         $client->setRawData($sendable);
@@ -111,21 +120,22 @@ class Connect extends \Magento\Framework\Model\AbstractModel
     }
 
     /**
-     * Returns the Facebook pixel ID
+     * Returns the Facebook pixel ID, factoring in sandbox mode
      *
+     * @param bool $fetchWhenNone
      * @return string
      */
     public function getFacebookId($fetchWhenNone)
     {
-        $configPath = $this->dataHelper->getConfigPath('facebook/pixel_id');
-        $fbId = (string) $this->scopeConfig->getValue(
-            $configPath,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
+        $fbId = $this->getStoredFacebookPixelId();
+        if (!$fetchWhenNone) {
+            return $fbId;
+        }
 
-        if (empty($fbId) && $fetchWhenNone) {
+        if (empty($fbId) || ($fbId == self::SANDBOX_PIXEL_ID && $this->dataHelper->getIsProduction())) {
             $this->dataHelper->log('Trying to fetch Facebook ID from Snappic API...');
             $snappicStore = $this->getSnappicStore();
+            $configPath = $this->dataHelper->getConfigPath('facebook/pixel_id');
             $fbId = $snappicStore['facebook_pixel_id'];
             if (!empty($fbId)) {
                 $fbId = $snappicStore['facebook_pixel_id'];
@@ -134,6 +144,20 @@ class Connect extends \Magento\Framework\Model\AbstractModel
             }
         }
         return $fbId;
+    }
+
+    /**
+     * Returns the Facebook pixel ID from system configuration
+     *
+     * @return string
+     */
+    public function getStoredFacebookPixelId()
+    {
+        $configPath = $this->dataHelper->getConfigPath('facebook/pixel_id');
+        return (string) $this->scopeConfig->getValue(
+            $configPath,
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
     }
 
     /**
