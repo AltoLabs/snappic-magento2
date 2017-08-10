@@ -1,4 +1,4 @@
-# AltoLabs_Snappic
+# AltoLabs Snappic for Magento 2
 
 Integrate your Magento 2 store with Snappic.io.
 
