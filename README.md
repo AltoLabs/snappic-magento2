@@ -1,5 +1,7 @@
 # AltoLabs Snappic for Magento 2
 
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/AltoLabs/snappic-magento2/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/AltoLabs/snappic-magento2/?branch=master)
+
 Integrate your Magento 2 store with Snappic.io.
 
 ## Requirements
