@@ -8,3 +8,10 @@ checks:
 filter:
   excluded_paths:
     - vendor/*
+
+build:
+  # Use PHP 7
+  environment:
+    php: '7.0.8'
+  tests:
+    override: true
