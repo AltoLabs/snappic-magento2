@@ -46,3 +46,7 @@ TBC.
 ## License
 
 This module code is proprietary and copyright AltoLabs 2017.
+
+## Packagist Push
+
+This paragraph is reserved for dummy Packagist trigger changes.
