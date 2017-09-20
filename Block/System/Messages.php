@@ -75,7 +75,9 @@ class Messages extends \Magento\Backend\Block\Template
     {
         $helper = $this->getHelper();
         return $helper->getSnappicAdminUrl()
-            . '/?login&pricing&provider=magento&domain=' . urlencode($helper->getDomain())
-            . '&access_token=' . urlencode($helper->getToken() . ':' . $helper->getSecret());
+                   .'?login=true'
+                   .'&provider=magento'
+                   .'&domain='.urlencode($helper->getDomain())
+                   .'&access_token='.urlencode($helper->getToken().':'.$helper->getSecret());
     }
 }
