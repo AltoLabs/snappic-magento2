@@ -52,7 +52,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const CONFIG_PREFIX = 'altolabs_config/';
     const API_HOST_DEFAULT = 'https://api.snappic.io';
     const STORE_ASSETS_HOST_DEFAULT = 'https://store.snappic.io';
-    const SNAPPIC_ADMIN_URL_DEFAULT = 'https://www.snappic.io';
+    const SNAPPIC_ADMIN_URL_DEFAULT = 'https://app.snappic.io';
 
     /**
      * @param \Magento\Framework\App\Helper\Context                        $context
