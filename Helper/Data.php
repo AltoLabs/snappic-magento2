@@ -51,6 +51,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     const CONFIG_PREFIX = 'altolabs_config/';
     const API_HOST_DEFAULT = 'https://api.snappic.io';
+    const API_SANDBOX_HOST_DEFAULT = 'http://api.magento-sandbox.snappic.io';
     const STORE_ASSETS_HOST_DEFAULT = 'https://store.snappic.io';
     const SNAPPIC_ADMIN_URL_DEFAULT = 'https://app.snappic.io';
 
@@ -92,10 +93,16 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
+     * Return the endpoint for the Snappic API
+     *
+     * @param  bool $bypassSandbox
      * @return string
      */
-    public function getApiHost()
+    public function getApiHost($bypassSandbox = false)
     {
+        if (!$bypassSandbox && $this->getIsSandboxed()) {
+            return self::API_SANDBOX_HOST_DEFAULT;
+        }
         return $this->getEnvOrDefault('SNAPPIC_API_HOST', self::API_HOST_DEFAULT);
     }
 
@@ -331,7 +338,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             'sku'                 => $product->getSku(),
             'price'               => $product->getPrice(),
             'inventory_quantity'  => $this->getProductStock($product),
-            'handle'              => $product->getUrlModel()->getUrl($product),
+            'handle'              => $product->getUrlKey(),
             'variants'            => $this->getSendableVariantsData($product),
             'images'              => $this->getSendableImagesData($product),
             'options'             => $this->getSendableOptionsData($product),
@@ -439,5 +446,28 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $url = $this->getCurrentStore()->getBaseUrl();
         $components = parse_url($url);
         return $components['host'];
+    }
+
+    /**
+     * Get whether or not sandbox mode is enabled
+     *
+     * @return bool
+     */
+    public function getIsSandboxed()
+    {
+        return (bool) $this->scopeConfig->getValue(
+            $this->getConfigPath('environment/sandboxed'),
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    /**
+     * Get whether or not production mode is enabled
+     *
+     * @return bool
+     */
+    public function getIsProduction()
+    {
+        return !$this->getIsSandboxed();
     }
 }

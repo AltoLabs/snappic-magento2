@@ -4,31 +4,35 @@
         <tab id="altolabs" translate="label" sortOrder="1000">
             <label>AltoLabs</label>
         </tab>
-        <section id="altolabs_config" translate="label" sortOrder="110" showInDefault="1" showInWebsite="0" showInStore="0">
+        <section id="altolabs_config" translate="label" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="0">
             <label>Snappic</label>
             <tab>altolabs</tab>
             <resource>AltoLabs_Snappic::config_altolabs</resource>
-            <group id="facebook" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+            <group id="environment" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                <label>Environment</label>
+                <comment>Whether to enable sandbox mode.</comment>
+                <field id="sandboxed" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Sandboxed</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
+            <group id="facebook" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
                 <label>Facebook Configuration</label>
-                <field id="pixel_id" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                <comment>You should not need to change these values.</comment>
+                <field id="pixel_id" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Facebook Pixel ID</label>
                 </field>
             </group>
-            <group id="security" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+            <group id="security" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
                 <label>Security</label>
-                <field id="token" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                <comment>Identity data shared between Magento and the Snappic API.</comment>
+                <field id="token" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Token</label>
                 </field>
-                <field id="secret" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="secret" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Secret</label>
                 </field>
             </group>
-            <!-- <group id="misc" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
-                <label>Miscellaneous</label>
-                <field id="reset" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Reset (Type YES)</label>
-                </field>
-            </group> -->
         </section>
     </system>
 </config>
